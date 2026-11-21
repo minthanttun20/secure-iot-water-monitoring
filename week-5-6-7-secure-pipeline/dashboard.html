@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Marina Hotel - Water Monitoring System</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* =====================================================
+           PROFESSIONAL LIGHT COLOR PALETTE
+           ===================================================== */
+        :root {
+            /* Backgrounds */
+            --bg-page:        #F0F4F8;
+            --bg-card:        #FFFFFF;
+            --bg-card-hover:  #F7FAFC;
+            --bg-header:      #FFFFFF;
+
+            /* Brand / Accent */
+            --accent-primary:   #0F6B8E;   /* deep teal */
+            --accent-secondary: #1A9BB5;   /* medium teal */
+            --accent-light:     #E0F4FA;   /* tint for badges */
+
+            /* Status colours */
+            --status-green:     #16A34A;
+            --status-green-bg:  #DCFCE7;
+            --status-red:       #DC2626;
+            --status-red-bg:    #FEE2E2;
+            --status-amber:     #D97706;
+            --status-amber-bg:  #FEF3C7;
+
+            /* Text */
+            --text-primary:   #0F172A;
+            --text-secondary: #475569;
+            --text-muted:     #94A3B8;
+
+            /* Borders */
+            --border-default: #E2E8F0;
+            --border-strong:  #CBD5E1;
+
+            /* Shadows */
+            --shadow-sm:  0 1px 3px rgba(15,23,42,0.07), 0 1px 2px rgba(15,23,42,0.04);
+            --shadow-md:  0 4px 12px rgba(15,23,42,0.08), 0 2px 4px rgba(15,23,42,0.04);
+            --shadow-lg:  0 10px 30px rgba(15,23,42,0.10), 0 4px 8px rgba(15,23,42,0.05);
+        }
+
+        body {
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── Header ─────────────────────────────────────────── */
+        .header {
+            background: var(--bg-header);
+            border-bottom: 1px solid var(--border-default);
+            padding: 1.1rem 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .logo-icon {
+            font-size: 1.9rem;
+            line-height: 1;
+        }
+
+        .header-title h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--accent-primary);
+            letter-spacing: -0.02em;
+        }
+
+        .header-title p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-top: 1px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .live-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            background: var(--status-green-bg);
+            border: 1px solid #BBF7D0;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--status-green);
+            letter-spacing: 0.06em;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--status-green);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.5; transform: scale(1.25); }
+        }
+
+        .timestamp {
+            color: var(--text-muted);
+            font-family: 'DM Mono', 'Consolas', monospace;
+            font-size: 0.85rem;
+        }
+
+        /* ── Container ──────────────────────────────────────── */
+        .container {
+            padding: 2rem 2.5rem;
+            max-width: 1480px;
+            margin: 0 auto;
+        }
+
+        /* ── Maya Banner ─────────────────────────────────────── */
+        .maya-section {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-left: 4px solid var(--accent-primary);
+            border-radius: 12px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.75rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .maya-avatar {
+            width: 52px;
+            height: 52px;
+            background: var(--accent-light);
+            border: 2px solid var(--accent-secondary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .maya-name {
+            font-weight: 600;
+            color: var(--accent-primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            letter-spacing: -0.01em;
+        }
+
+        .maya-message {
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            line-height: 1.55;
+        }
+
+        /* ── Sensor Grid ─────────────────────────────────────── */
+        .sensors-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sensor-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: 14px;
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* coloured top stripe */
+        .sensor-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 14px 14px 0 0;
+        }
+
+        .sensor-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-3px);
+            border-color: var(--border-strong);
+        }
+
+        .sensor-card.attack-active {
+            border-color: var(--status-red);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        .sensor-card.attack-active::before {
+            background: var(--status-red);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25%       { transform: translateX(-5px); }
+            75%       { transform: translateX(5px); }
+        }
+
+        .sensor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.4rem;
+        }
+
+        .sensor-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+
+        .sensor-title {
+            font-size: 0.72rem;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .sensor-status {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 600;
+            padding: 0.25rem 0.65rem;
+            background: #F1F5F9;
+            border-radius: 99px;
+            color: var(--text-muted);
+            letter-spacing: 0.04em;
+        }
+
+        .sensor-status.is-online {
+            background: var(--status-green-bg);
+            color: var(--status-green);
+        }
+
+        .status-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: var(--text-muted);
+        }
+
+        .status-dot.online {
+            background: var(--status-green);
+            animation: pulse 2s infinite;
+        }
+
+        .sensor-metrics {
+            display: flex;
+            flex-direction: column;
+            gap: 0.85rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+        }
+
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 600;
+            font-family: 'DM Mono', 'Consolas', monospace;
+            color: var(--accent-primary);
+            transition: color 0.3s ease;
+        }
+
+        .metric-value.updating {
+            color: var(--status-green);
+        }
+
+        /* Pressure bar */
+        .pressure-bar {
+            height: 6px;
+            background: #E2E8F0;
+            border-radius: 99px;
+            overflow: hidden;
+            margin-top: 0.3rem;
+        }
+
+        .pressure-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            border-radius: 99px;
+            transition: width 0.5s ease;
+        }
+
+        .pressure-fill.high {
+            background: linear-gradient(90deg, var(--status-amber), var(--status-red));
+        }
+
+        /* Divider inside card */
+        .metric-divider {
+            border: none;
+            border-top: 1px solid var(--border-default);
+            margin: 0.25rem 0;
+        }
+
+        /* ── Security Section ────────────────────────────────── */
+        .security-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .security-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: 14px;
+            padding: 1.4rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .security-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+        }
+
+        .security-header .sec-icon {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+
+        .security-normal .sec-icon { background: var(--status-green-bg); }
+        .security-alert  .sec-icon { background: var(--status-red-bg); }
+
+        .security-status-text {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .security-status-text strong {
+            color: var(--text-primary);
+        }
+
+        /* Attack alert box */
+        .attack-alert {
+            background: var(--status-red-bg);
+            border: 1px solid #FCA5A5;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        .attack-alert.visible { display: block; }
+
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .attack-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+            font-size: 0.82rem;
+            color: var(--status-red);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            margin-bottom: 0.65rem;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.55; }
+        }
+
+        .attack-details {
+            font-size: 0.83rem;
+            color: var(--text-secondary);
+        }
+
+        .attack-details span {
+            display: block;
+            margin-bottom: 0.2rem;
+        }
+
+        .attack-details strong { color: var(--text-primary); }
+
+        .attack-status {
+            margin-top: 0.65rem;
+            padding: 0.45rem 0.75rem;
+            background: var(--status-green-bg);
+            border-radius: 6px;
+            color: var(--status-green);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-align: center;
+            letter-spacing: 0.03em;
+        }
+
+        /* ── Event Log ───────────────────────────────────────── */
+        .section-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+        }
+
+        .event-log {
+            max-height: 285px;
+            overflow-y: auto;
+            border: 1px solid var(--border-default);
+            border-radius: 10px;
+            background: #F8FAFC;
+        }
+
+        .event-log::-webkit-scrollbar { width: 5px; }
+        .event-log::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .event-log::-webkit-scrollbar-thumb {
+            background: var(--border-strong);
+            border-radius: 99px;
+        }
+
+        .event-item {
+            padding: 0.65rem 1rem;
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+            font-size: 0.82rem;
+            background: transparent;
+            transition: background 0.15s;
+        }
+
+        .event-item:last-child { border-bottom: none; }
+        .event-item:hover { background: #F1F5F9; }
+        .event-icon { font-size: 1rem; line-height: 1; }
+
+        .event-time {
+            color: var(--text-muted);
+            font-family: 'DM Mono', monospace;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+        .event-message {
+            flex: 1;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        .event-item.attack .event-message { color: var(--status-red); }
+        .event-item.valid  .event-message { color: var(--status-green); }
+
+        /* ── Stats Footer ────────────────────────────────────── */
+        .stats-footer {
+            margin-top: 1.5rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.25rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-default);
+            border-radius: 14px;
+            padding: 1.25rem 1.5rem;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .stat-icon.green  { background: var(--status-green-bg); }
+        .stat-icon.red    { background: var(--status-red-bg); }
+        .stat-icon.teal   { background: var(--accent-light); }
+
+        .stat-body {}
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'DM Mono', 'Consolas', monospace;
+            line-height: 1;
+        }
+
+        .stat-value.green { color: var(--status-green); }
+        .stat-value.red   { color: var(--status-red); }
+        .stat-value.teal  { color: var(--accent-primary); }
+
+        .stat-label {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-top: 0.3rem;
+            font-weight: 500;
+        }
+
+        /* ── Responsive ──────────────────────────────────────── */
+        @media (max-width: 1200px) {
+            .sensors-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .container { padding: 1.25rem; }
+            .sensors-grid { grid-template-columns: 1fr; }
+            .security-section { grid-template-columns: 1fr; }
+            .stats-footer { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo-icon">🌊</div>
+            <div class="header-title">
+                <h1>Min Thant Tun</h1>
+                <p>Grand Marina Hotel · Water Monitoring</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="live-indicator">
+                <div class="live-dot"></div>
+                <span>LIVE</span>
+            </div>
+            <div class="timestamp" id="current-time">--:--:--</div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- Maya Banner -->
+        <div class="maya-section">
+            <div class="maya-avatar">👩‍💻</div>
+            <div class="maya-speech">
+                <div class="maya-name">Min Thant Tun · Junior Security Engineer</div>
+                <div class="maya-message">
+                    Welcome to the Grand Marina water monitoring dashboard.
+                    I monitor pressure, flow rates, and security events across all hotel zones in real time.
+                    Every message is verified with HMAC signatures, timestamp checks, and sequence counters
+                    before it reaches this screen.
+                </div>
+            </div>
+        </div>
+
+        <!-- Zone Cards -->
+        <div class="sensors-grid">
+
+            <!-- Rooftop Bar -->
+            <div class="sensor-card" id="card-main_building">
+                <div class="sensor-header">
+                    <div>
+                        <div class="sensor-icon">🍹</div>
+                        <div class="sensor-title">Rooftop Bar</div>
+                    </div>
+                    <div class="sensor-status" id="sensor-status-badge-main_building">
+                        <div class="status-dot" id="status-main_building"></div>
+                        <span id="status-text-main_building">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="sensor-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Pressure</span>
+                        <span class="metric-value" id="pressure-main_building">-- PSI</span>
+                    </div>
+                    <div class="pressure-bar">
+                        <div class="pressure-fill" id="pressure-bar-main_building" style="width:0%"></div>
+                    </div>
+                    <hr class="metric-divider">
+                    <div class="metric">
+                        <span class="metric-label">Flow Rate</span>
+                        <span class="metric-value" id="flow-main_building">-- LPM</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Gate Position</span>
+                        <span class="metric-value" id="valve-main_building">--%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pool & Spa -->
+            <div class="sensor-card" id="card-pool_spa">
+                <div class="sensor-header">
+                    <div>
+                        <div class="sensor-icon">🏊</div>
+                        <div class="sensor-title">Pool & Spa</div>
+                    </div>
+                    <div class="sensor-status" id="sensor-status-badge-pool_spa">
+                        <div class="status-dot" id="status-pool_spa"></div>
+                        <span id="status-text-pool_spa">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="sensor-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Pressure</span>
+                        <span class="metric-value" id="pressure-pool_spa">-- PSI</span>
+                    </div>
+                    <div class="pressure-bar">
+                        <div class="pressure-fill" id="pressure-bar-pool_spa" style="width:0%"></div>
+                    </div>
+                    <hr class="metric-divider">
+                    <div class="metric">
+                        <span class="metric-label">Flow Rate</span>
+                        <span class="metric-value" id="flow-pool_spa">-- LPM</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Gate Position</span>
+                        <span class="metric-value" id="valve-pool_spa">--%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kitchen & Laundry -->
+            <div class="sensor-card" id="card-kitchen">
+                <div class="sensor-header">
+                    <div>
+                        <div class="sensor-icon">🍽️</div>
+                        <div class="sensor-title">Kitchen & Laundry</div>
+                    </div>
+                    <div class="sensor-status" id="sensor-status-badge-kitchen">
+                        <div class="status-dot" id="status-kitchen"></div>
+                        <span id="status-text-kitchen">OFFLINE</span>
+                    </div>
+                </div>
+                <div class="sensor-metrics">
+                    <div class="metric">
+                        <span class="metric-label">Pressure</span>
+                        <span class="metric-value" id="pressure-kitchen">-- PSI</span>
+                    </div>
+                    <div class="pressure-bar">
+                        <div class="pressure-fill" id="pressure-bar-kitchen" style="width:0%"></div>
+                    </div>
+                    <hr class="metric-divider">
+                    <div class="metric">
+                        <span class="metric-label">Flow Rate</span>
+                        <span class="metric-value" id="flow-kitchen">-- LPM</span>
+                    </div>
+                    <div class="metric">
+                        <span class="metric-label">Gate Position</span>
+                        <span class="metric-value" id="valve-kitchen">--%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Security Section -->
+        <div class="security-section">
+
+            <!-- Security Status -->
+            <div class="security-card">
+                <div class="security-header security-normal" id="security-header">
+                    <div class="sec-icon">🛡️</div>
+                    <span>Security Status</span>
+                </div>
+                <div class="security-status-text" id="security-status">
+                    All systems operating normally. HMAC + timestamp + sequence verification active.
+                </div>
+                <div class="security-status-text">
+                    Last security check: <strong><span id="last-check">--:--:--</span></strong>
+                </div>
+
+                <div class="attack-alert" id="attack-alert">
+                    <div class="attack-header">
+                        <span>⚠️</span>
+                        <span>Attack Detected</span>
+                    </div>
+                    <div class="attack-details">
+                        <span><strong>Type:</strong> <span id="attack-type">--</span></span>
+                        <span><strong>Source:</strong> <span id="attack-source">--</span></span>
+                        <span><strong>Target:</strong> <span id="attack-target">--</span></span>
+                    </div>
+                    <div class="attack-status">✓ Blocked by Security System</div>
+                </div>
+            </div>
+
+            <!-- Event Log -->
+            <div class="security-card">
+                <div class="security-header">
+                    <div class="sec-icon" style="background:#F1F5F9;">📋</div>
+                    <span>Security Event Log</span>
+                </div>
+                <div class="event-log" id="event-log">
+                    <div class="event-item">
+                        <span class="event-icon">🔄</span>
+                        <span class="event-time">--:--:--</span>
+                        <span class="event-message">Waiting for events...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Footer -->
+        <div class="stats-footer">
+            <div class="stat-card">
+                <div class="stat-icon green">✅</div>
+                <div class="stat-body">
+                    <div class="stat-value green" id="stat-valid">0</div>
+                    <div class="stat-label">Valid Messages</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red">🚫</div>
+                <div class="stat-body">
+                    <div class="stat-value red" id="stat-rejected">0</div>
+                    <div class="stat-label">Attacks Blocked</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon teal">📊</div>
+                <div class="stat-body">
+                    <div class="stat-value teal" id="stat-total">0</div>
+                    <div class="stat-label">Total Processed</div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        // ── Dashboard state ──────────────────────────────────
+        const state = {
+            valid: 0, rejected: 0, total: 0,
+            zones: {
+                main_building: { online: false, lastSeen: null },
+                pool_spa:      { online: false, lastSeen: null },
+                kitchen:       { online: false, lastSeen: null }
+            },
+            events: []
+        };
+
+        // ── WebSocket ────────────────────────────────────────
+        let ws = null;
+        let reconnectAttempts = 0;
+        const maxReconnectAttempts = 10;
+
+        function connectWebSocket() {
+            addEvent('valid', 'Connecting to monitoring system...');
+            try {
+                ws = new WebSocket('ws://localhost:8765');
+            } catch (e) {
+                addEvent('attack', 'WebSocket creation failed: ' + e.message);
+                return;
+            }
+            ws.onopen = () => {
+                reconnectAttempts = 0;
+                addEvent('valid', 'Connected to security monitoring system');
+                document.querySelector('.live-dot').style.background = 'var(--status-green)';
+            };
+            ws.onmessage = (event) => {
+                try { handleMessage(JSON.parse(event.data)); } catch (e) { console.error(e); }
+            };
+            ws.onclose = () => {
+                document.querySelector('.live-dot').style.background = 'var(--status-red)';
+                if (reconnectAttempts < maxReconnectAttempts) {
+                    reconnectAttempts++;
+                    addEvent('attack', 'Disconnected. Retry ' + reconnectAttempts + '/' + maxReconnectAttempts + '...');
+                    setTimeout(connectWebSocket, 2000);
+                } else {
+                    addEvent('attack', 'Connection failed. Is subscriber_dashboard.py running?');
+                }
+            };
+            ws.onerror = () => {};
+        }
+
+        // ── Message handlers ─────────────────────────────────
+        function handleMessage(message) {
+            switch (message.type) {
+                case 'valid_message':    handleValidMessage(message.data); break;
+                case 'attack':
+                case 'rejected_message': handleAttack(message.data);       break;
+                case 'stats_update':     updateStats(message.data);         break;
+            }
+        }
+
+        function handleValidMessage(data) {
+            state.valid++; state.total++;
+            let zone = 'main_building';
+            if (data.zone) { zone = data.zone; }
+            else if (data.topic) {
+                if (data.topic.includes('pool'))    zone = 'pool_spa';
+                else if (data.topic.includes('kitchen')) zone = 'kitchen';
+            }
+            state.zones[zone].online  = true;
+            state.zones[zone].lastSeen = new Date();
+            updateZoneCard(zone, data);
+            updateStatsDisplay();
+            addEvent('valid', getZoneName(zone) + ': pressure=' + (data.pressure_psi || '--') + ' PSI, flow=' + (data.flow_rate_gpm || '--') + ' LPM');
+        }
+
+        function handleAttack(data) {
+            state.rejected++; state.total++;
+            showAttackAlert(data);
+            const card = document.getElementById('card-main_building');
+            if (card) { card.classList.add('attack-active'); setTimeout(() => card.classList.remove('attack-active'), 3000); }
+            updateStatsDisplay();
+            addEvent('attack', 'BLOCKED: ' + (data.attack_type || data.reasons?.join(', ') || 'Unknown attack') + ' from ' + (data.source || 'unknown'));
+        }
+
+        function showAttackAlert(data) {
+            const alert  = document.getElementById('attack-alert');
+            const header = document.getElementById('security-header');
+            const status = document.getElementById('security-status');
+            document.getElementById('attack-type').textContent   = data.attack_type || data.reasons?.join(', ') || 'Security Violation';
+            document.getElementById('attack-source').textContent = data.source || data.device_id || 'unknown';
+            document.getElementById('attack-target').textContent = 'Water System';
+            alert.classList.add('visible');
+            header.className = 'security-header security-alert';
+            header.innerHTML = '<div class="sec-icon">⚠️</div><span>Security Alert</span>';
+            status.textContent = 'Attack detected and blocked by HMAC + sequence + timestamp verification!';
+            setTimeout(() => {
+                alert.classList.remove('visible');
+                header.className = 'security-header security-normal';
+                header.innerHTML = '<div class="sec-icon">🛡️</div><span>Security Status</span>';
+                status.textContent = 'All systems operating normally. HMAC + timestamp + sequence verification active.';
+            }, 5000);
+        }
+
+        function updateZoneCard(zone, data) {
+            const dot   = document.getElementById('status-' + zone);
+            const text  = document.getElementById('status-text-' + zone);
+            const badge = document.getElementById('sensor-status-badge-' + zone);
+            if (dot)   { dot.classList.add('online'); }
+            if (text)  { text.textContent = 'ONLINE'; }
+            if (badge) { badge.classList.add('is-online'); }
+
+            const pressure = data.pressure_psi   || 0;
+            const flow     = data.flow_rate_gpm   || 0;
+            const valve    = data.valve_position   || 0;
+            animateMetric('pressure-' + zone, pressure.toFixed(1) + ' PSI');
+            animateMetric('flow-'     + zone, flow.toFixed(1)     + ' LPM');
+            animateMetric('valve-'    + zone, valve.toFixed(1)    + '%');
+
+            const bar = document.getElementById('pressure-bar-' + zone);
+            if (bar) {
+                bar.style.width = Math.min((pressure / 80) * 100, 100) + '%';
+                bar.classList.toggle('high', pressure > 65);
+            }
+        }
+
+        function animateMetric(id, value) {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = value;
+                el.classList.add('updating');
+                setTimeout(() => el.classList.remove('updating'), 500);
+            }
+        }
+
+        function updateStatsDisplay() {
+            document.getElementById('stat-valid').textContent    = state.valid;
+            document.getElementById('stat-rejected').textContent = state.rejected;
+            document.getElementById('stat-total').textContent    = state.total;
+            document.getElementById('last-check').textContent    = formatTime(new Date());
+        }
+
+        function updateStats(data) {
+            state.valid    = data.valid    || 0;
+            state.rejected = data.rejected || 0;
+            state.total    = data.total    || 0;
+            updateStatsDisplay();
+        }
+
+        // ── Event log ────────────────────────────────────────
+        function addEvent(type, message) {
+            const log  = document.getElementById('event-log');
+            const time = formatTime(new Date());
+            const icon = type === 'attack' ? '🚨' : '✅';
+            const item = document.createElement('div');
+            item.className = 'event-item ' + type;
+            item.innerHTML =
+                '<span class="event-icon">' + icon + '</span>' +
+                '<span class="event-time">'  + time + '</span>' +
+                '<span class="event-message">' + message + '</span>';
+            log.firstChild ? log.insertBefore(item, log.firstChild) : log.appendChild(item);
+            while (log.children.length > 50) log.removeChild(log.lastChild);
+        }
+
+        // ── Helpers ──────────────────────────────────────────
+        function getZoneName(zone) {
+            return { main_building: 'Rooftop Bar', pool_spa: 'Pool & Spa', kitchen: 'Kitchen & Laundry' }[zone] || 'Unknown Zone';
+        }
+
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { hour12: false });
+        }
+
+        // ── Init ─────────────────────────────────────────────
+        function updateClock() {
+            document.getElementById('current-time').textContent = formatTime(new Date());
+        }
+
+        function init() {
+            updateClock();
+            setInterval(updateClock, 1000);
+            connectWebSocket();
+            setTimeout(() => {
+                const log = document.getElementById('event-log');
+                if (log.children.length === 1) {
+                    const msg = log.firstChild.querySelector('.event-message');
+                    if (msg && msg.textContent === 'Waiting for events...') log.innerHTML = '';
+                }
+            }, 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
