@@ -59,8 +59,6 @@ python week-3-insecure-baseline/sensor_publisher.py
 | No message authentication | The dashboard cannot tell real data from forged data |
 | QoS 0 | Best-effort delivery, no guarantee |
 
-> 📸 *Add a screenshot of the dashboard output here, and ideally a `mosquitto_sub` or Wireshark capture showing readable plaintext.*
-
-## Next
-
-Week 4 encrypts the connection with TLS.
+---
+### Dashboard Output
+![dashboard](../img/dashboard.png)
